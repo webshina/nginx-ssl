@@ -1,44 +1,5 @@
 # How to deploy
 
-1. Comment out ssl settings of nginx.conf
-
-```nginx
-events {
-    worker_connections 1024;
-}
-
-http {
-    server {
-        listen 80;
-        server_name webshina.xyz;
-
-        location /.well-known/acme-challenge/ {
-            root /var/www/certbot;
-        }
-
-        location / {
-            return 301 https://$host$request_uri;
-        }
-    }
-
-    #server {
-    #    listen 443 ssl;
-    #    server_name webshina.xyz;
-
-    #    ssl_certificate /etc/letsencrypt/live/webshina.xyz/fullchain.pem;
-    #    ssl_certificate_key /etc/letsencrypt/live/webshina.xyz/privkey.pem;
-
-    #    location / {
-    #        proxy_pass http://mypage_nextjs_1:3000;
-    #        proxy_set_header Host $host;
-    #        proxy_set_header X-Real-IP $remote_addr;
-    #        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #        proxy_set_header X-Forwarded-Proto $scheme;
-    #    }
-    #}
-}
-```
-
 2. Run nginx container
 
 ```bash
@@ -50,7 +11,7 @@ docker-compose up -d nginx
 ```bash
 docker-compose up -d certbot
 docker exec -it certbot sh
-certbot certonly --webroot --webroot-path=/var/www/certbot -d webshina.xyz -d www.webshina.xyz
+certbot certonly --webroot --webroot-path=/var/www/certbot -d webshina.xyz -d www.webshina.xyz -d favo.webshina.xyz
 
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Enter email address (used for urgent renewal and security notices)
@@ -94,7 +55,12 @@ If you like Certbot, please consider supporting our work by:
 This command will create a new folder `./data/certbot/conf/live/webshina.xyz` with SSL certificate files.
 And access to "/.well-known/acme-challenge" via nginx.
 
-5. Uncomment ssl settings of nginx.conf
+5. Include other container to nginx.conf
+
+```bash
+sudo ln -s ./sites-available/mypage.conf ./sites-enabled/
+sudo ln -s ./sites-available/favo.conf ./sites-enabled/
+```
 
 6. Rerun nginx container
 
