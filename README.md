@@ -11,7 +11,7 @@ docker-compose up -d nginx
 ```bash
 docker-compose up -d certbot
 docker exec -it certbot sh
-certbot certonly --webroot --webroot-path=/var/www/certbot -d webshina.xyz -d www.webshina.xyz -d favo.webshina.xyz
+certbot certonly --webroot --webroot-path=/var/www/certbot -d webshina.xyz
 
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Enter email address (used for urgent renewal and security notices)
