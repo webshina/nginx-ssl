@@ -58,8 +58,8 @@ And access to "/.well-known/acme-challenge" via nginx.
 5. Include other container to nginx.conf
 
 ```bash
-sudo ln -s ./sites-available/mypage.conf ./sites-enabled/
-sudo ln -s ./sites-available/favo.conf ./sites-enabled/
+sudo ln -s ../sites-available/mypage.conf ./sites-enabled/
+sudo ln -s ../sites-available/favo.conf ./sites-enabled/
 ```
 
 6. Rerun nginx container
