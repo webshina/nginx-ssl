@@ -1,17 +1,17 @@
 # How to deploy
 
-2. Run nginx container
+1. Run nginx container
 
 ```bash
 docker-compose up -d nginx
 ```
 
-3. Create SSL certificate by letsencrypt
+2. Create SSL certificate by letsencrypt
 
 ```bash
 docker-compose up -d certbot
 docker exec -it certbot sh
-certbot certonly --webroot --webroot-path=/var/www/certbot -d webshina.xyz -d favo.webshina.xyz
+certbot certonly --webroot --webroot-path=/var/www/certbot -d <DOMAIN_A> -d <DOMAIN_B> -d ...
 
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Enter email address (used for urgent renewal and security notices)
@@ -52,15 +52,42 @@ If you like Certbot, please consider supporting our work by:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ```
 
-This command will create a new folder `./data/certbot/conf/live/webshina.xyz` with SSL certificate files.
+This command will create a new folder `certbot/conf/live/webshina.xyz` with SSL certificate files.
 And access to "/.well-known/acme-challenge" via nginx.
 
-5. Include other container to nginx.conf
+3. Create nginx configuration file
+
+Add the following configuration to `nginx-proxy/sites-available/<SERVICE_NAME>.conf` on your development machine.
+
+```
+vi sites-available/<SERVICE_NAME>.conf
+
+server {
+    listen 443 ssl;
+    server_name <DOMAIN>;
+
+    ssl_certificate /etc/letsencrypt/live/<DOMAIN>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<DOMAIN>/privkey.pem;
+
+    location / {
+        proxy_pass http://<CONTAINER_NAME>:<PORT>;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+4. Include other container to nginx.conf
+
+Create a symbolic link to `sites-enabled` directory on your development machine.
 
 ```bash
-sudo ln -s ../sites-available/mypage.conf ./sites-enabled/
-sudo ln -s ../sites-available/favo.conf ./sites-enabled/
+ln -s ../sites-available/<SERVICE_NAME>.conf ./sites-enabled/
 ```
+
+5. Push the changes to the server
 
 6. Rerun nginx container
 
@@ -69,8 +96,45 @@ docker-compose stop nginx
 docker-compose up -d nginx
 ```
 
-6. Connect other container to "nginx-proxy" docker network
+7. Connect other container to "nginx-proxy" docker network
 
 ```bash
 docker network connect nginx-ssl_nginx-proxy <container_name>
+```
+
+8. Allow access by the port
+
+```bash
+$ sudo ufw allow 3006
+Rule added
+Rule added (v6)
+
+$ sudo ufw status verbose
+Status: active
+Logging: on (medium)
+Default: deny (incoming), allow (outgoing), deny (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+80                         ALLOW IN    Anywhere
+443                        ALLOW IN    Anywhere
+51820                      ALLOW IN    Anywhere
+3389                       ALLOW IN    Anywhere
+5900                       ALLOW IN    Anywhere
+3389/tcp                   ALLOW IN    Anywhere
+3000                       ALLOW IN    Anywhere
+3001                       ALLOW IN    Anywhere
+3006                       ALLOW IN    Anywhere
+22/tcp (v6)                ALLOW IN    Anywhere (v6)
+80 (v6)                    ALLOW IN    Anywhere (v6)
+443 (v6)                   ALLOW IN    Anywhere (v6)
+51820 (v6)                 ALLOW IN    Anywhere (v6)
+3389 (v6)                  ALLOW IN    Anywhere (v6)
+5900 (v6)                  ALLOW IN    Anywhere (v6)
+3389/tcp (v6)              ALLOW IN    Anywhere (v6)
+3000 (v6)                  ALLOW IN    Anywhere (v6)
+3001 (v6)                  ALLOW IN    Anywhere (v6)
+3006 (v6)                  ALLOW IN    Anywhere (v6)
 ```
