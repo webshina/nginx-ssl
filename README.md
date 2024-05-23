@@ -98,9 +98,15 @@ docker-compose up -d nginx
 
 7. Connect other container to "nginx-proxy" docker network
 
+Connect to the network
+
 ```bash
 docker network connect nginx-ssl_nginx-proxy <container_name>
-// Check the container is connected to the network
+```
+
+Check the container is connected to the network
+
+```bash
 docker network inspect nginx-ssl_nginx-proxy
 ```
 
