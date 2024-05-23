@@ -100,12 +100,14 @@ docker-compose up -d nginx
 
 ```bash
 docker network connect nginx-ssl_nginx-proxy <container_name>
+// Check the container is connected to the network
+docker network inspect nginx-ssl_nginx-proxy
 ```
 
 8. Allow access by the port
 
 ```bash
-$ sudo ufw allow 3006
+$ sudo ufw allow <PORT>
 Rule added
 Rule added (v6)
 
