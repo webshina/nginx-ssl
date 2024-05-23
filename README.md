@@ -98,10 +98,22 @@ docker-compose up -d nginx
 
 7. Connect other container to "nginx-proxy" docker network
 
-Connect to the network
+Add network to docker-compose.yml for the container you want to connect to the network.
 
 ```bash
-docker network connect nginx-ssl_nginx-proxy <container_name>
+vi docker-compose.yml
+
+services:
+  <SERVICE_NAME>:
+    ...
+    container_name: <CONTAINER_NAME>
+    ...
+    networks:
+      - nginx-ssl_nginx-proxy
+...
+networks:
+  nginx-ssl_nginx-proxy:
+    external: true
 ```
 
 Check the container is connected to the network
