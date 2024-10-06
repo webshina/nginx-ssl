@@ -158,3 +158,33 @@ To                         Action      From
 3001 (v6)                  ALLOW IN    Anywhere (v6)
 3006 (v6)                  ALLOW IN    Anywhere (v6)
 ```
+
+# How to renew SSL certificate
+
+To renew your SSL certificate, follow these steps:
+
+1. **Run the Certbot renewal command**:
+
+```bash
+docker-compose up -d certbot
+docker exec -it certbot sh
+certbot renew
+```
+
+This command will check all installed certificates and renew any that are close to expiring.
+
+2. **Verify the renewal**:
+
+After running the renewal command, check the logs to ensure the renewal was successful:
+
+```bash
+cat /var/log/letsencrypt/letsencrypt.log
+```
+
+3. **Reload the Nginx configuration**:
+
+Once the certificate is renewed, reload the Nginx configuration to apply the changes:
+
+```bash
+docker-compose exec nginx nginx -s reload
+```
